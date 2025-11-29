@@ -2,7 +2,7 @@
 
 
 
-!(Proses Noise)[Proses-Gray.jpg]  
+![roses Noise](Proses-Gray.jpg)  
 
 
 
@@ -47,7 +47,7 @@
 
 
 
-!(Proses Filter)[Proses-Filter.jpg]  
+![Proses Filter](Proses-Filter.jpg)  
 
 
 
