@@ -3,9 +3,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import os
 
-# ==========================
-# Filter manual 
-# ==========================
+
 def min_filter(image, kernel_size=3):
     pad = kernel_size // 2
     if image.ndim == 2:  # Grayscale
@@ -76,51 +74,106 @@ def median_filter(image, kernel_size=3):
                     filtered[i,j,c] = np.median(window)
     return filtered.astype(np.uint8)
 
-# ==========================
-# Bantu load dan simpan
-# ==========================
+
 def load_image(path):
     return np.array(Image.open(path))
 
 def save_image(image, path):
     Image.fromarray(image).save(path)
 
-# ==========================
-# Filter semua noise (RGB dan Grayscale)
-# ==========================
+
+def mse(imageA, imageB):
+    return np.mean((imageA.astype(float) - imageB.astype(float)) ** 2)
+
+def psnr(imageA, imageB):
+    mse_val = mse(imageA, imageB)
+    if mse_val == 0:
+        return 100
+    return 20 * np.log10(255.0 / np.sqrt(mse_val))
+
+
 def filter_and_display_grid(input_dir="output", output_dir="filtered", kernel_size=3):
     os.makedirs(output_dir, exist_ok=True)
-    filters = [("min", min_filter), ("max", max_filter), ("mean", mean_filter), ("median", median_filter)]
 
-    # Cari semua gambar (baik RGB maupun grayscale)
+    filters = [
+        ("Min", min_filter),
+        ("Max", max_filter),
+        ("Mean", mean_filter),
+        ("Median", median_filter)
+    ]
+
     all_images = [f for f in os.listdir(input_dir) if f.endswith(".jpg")]
-    
+
+    all_mse = {}
+    all_psnr = {}
+
     for img_name in all_images:
         img_path = os.path.join(input_dir, img_name)
-        img = load_image(img_path)
-        filtered_results = []
-        
+        original = load_image(img_path)
+
+        mse_vals = []
+        psnr_vals = []
+        filter_names = []
+
+        print("\n" + "="*50)
+        print(f"HASIL EVALUASI: {os.path.splitext(img_name)[0]}")
+        print("="*50)
+        print("Filter\t|\tMSE\t|\tPSNR (dB)")
+        print("-"*50)
+
         for fname, ffunc in filters:
-            filtered = ffunc(img, kernel_size)
-            filtered_results.append((fname, filtered))
-            
-            # Simpan hasil filter
-            save_name = os.path.join(output_dir, f"{os.path.splitext(img_name)[0]}_{fname}.jpg")
+            filtered = ffunc(original, kernel_size)
+
+            save_name = os.path.join(
+                output_dir,
+                f"{os.path.splitext(img_name)[0]}_{fname.lower()}.jpg"
+            )
             save_image(filtered, save_name)
 
-        # ==========================
-        # Display grid - SAMA PERSIS seperti kode Anda
-        # ==========================
-        n_filters = len(filtered_results)
-        plt.figure(figsize=(4*n_filters,4))
-        for i, (fname, filtered) in enumerate(filtered_results):
-            plt.subplot(1, n_filters, i+1)
-            plt.imshow(filtered)
-            plt.title(fname)
-            plt.axis('off')
-        plt.suptitle(f"Filtered - {img_name}", fontsize=16)
-        plt.tight_layout()
-        plt.show()
+            mse_val = mse(original, filtered)
+            psnr_val = psnr(original, filtered)
+
+            print(f"{fname}\t|\t{mse_val:.2f}\t|\t{psnr_val:.2f}")
+
+            mse_vals.append(mse_val)
+            psnr_vals.append(psnr_val)
+            filter_names.append(fname)
+
+        all_mse[img_name] = mse_vals
+        all_psnr[img_name] = psnr_vals
+
+    
+    plt.figure(figsize=(14,6))
+    x = np.arange(len(all_images))
+    width = 0.2
+
+    for i, fname in enumerate(filter_names):
+        plt.bar(x + i*width,
+                [all_mse[img][i] for img in all_images],
+                width,
+                label=fname)
+
+    plt.xticks(x + width*1.5, all_images, rotation=45)
+    plt.title("Perbandingan MSE Semua Dataset & Filter")
+    plt.ylabel("MSE")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+   
+    plt.figure(figsize=(14,6))
+    for i, fname in enumerate(filter_names):
+        plt.bar(x + i*width,
+                [all_psnr[img][i] for img in all_images],
+                width,
+                label=fname)
+
+    plt.xticks(x + width*1.5, all_images, rotation=45)
+    plt.title("Perbandingan PSNR Semua Dataset & Filter")
+    plt.ylabel("PSNR (dB)")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     filter_and_display_grid()
