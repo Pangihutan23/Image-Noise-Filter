@@ -79,10 +79,27 @@
 * median: Terbaik untuk salt & pepper noise  
 
 
+## Evaluasi Hasil  
 
+### Nilai MSE  
+![Grafik MSE](MSE.png)  
 
+**Penjelasan**  
+Berdasarkan grafik perbandingan MSE, terlihat bahwa Min filtering dan Max filtering secara konsisten menghasilkan nilai MSE paling tinggi pada hampit setiap dataset. Sedangkan Mean filtering dan Median filtering menghasilkan nilai MSE yang jauh lebih rendah pada sebagian besar dataset. Median filtering menunjukkan nilai MSE yang paling kecil dan stabil, Mean filtering juga menghasilkan MSE rendah, meskipun pada beberapa citra nilainya sedikit lebih tinggi dibandingkan median.   
 
 ---  
+
+
+![Grafik PSNR](PSNR.png)  
+
+**Penjelasan**  
+Berdasarkan grafik PSNR Min filtering dan Max filtering memiliki nilai PSNR paling rendah pada hampir seluruh dataset. Sedangkan Median filtering secara konsisten menghasilkan nilai PSNR tertinggi pada berbagai jenis citra. Mean filtering berada pada posisi kedua dengan nilai PSNR yang relatif tinggi, meskipun sedikit lebih rendah dibandingkan median filtering, terutama pada citra dengan noise impulsif. Secara keseluruhan, hasil PSNR menegaskan bahwa Median filtering merupakan metode paling optimal, diikuti oleh Mean filtering.  
+
+---  
+
+
+## Catatan  
+Projek ini dibuat untuk tujuan pembelajaran. 
 
 
 
